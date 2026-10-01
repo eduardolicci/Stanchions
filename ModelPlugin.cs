@@ -37,11 +37,13 @@ namespace Stanchions
         [StructuresField("mat1")] public string MidMaterial;
         [StructuresField("ClassMid")] public string ClassMid;
         [StructuresField("partname1")] public string MidPartName;
+        [StructuresField("mprofile_link")] public int MidProfileLink;
 
         [StructuresField("Lsprof")] public string LastProfile;
         [StructuresField("mat3")] public string LastMaterial;
         [StructuresField("ClassLast")] public string ClassLast;
         [StructuresField("partname3")] public string LastPartName;
+        [StructuresField("lprofile_link")] public int LastProfileLink;
     }
 
     [Plugin("Stanchions")]
@@ -187,11 +189,13 @@ namespace Stanchions
             if (IsDefaultValue(_Data.MidMaterial)) _Data.MidMaterial = "A53-GR.B";
             if (IsDefaultValue(_Data.ClassMid)) _Data.ClassMid = "11";
             if (IsDefaultValue(_Data.MidPartName)) _Data.MidPartName = "POST";
+            if (IsDefaultValue(_Data.MidProfileLink)) _Data.MidProfileLink = 1; // Match First
 
             if (IsDefaultValue(_Data.LastProfile)) _Data.LastProfile = "PIPE1-1/4SCH40";
             if (IsDefaultValue(_Data.LastMaterial)) _Data.LastMaterial = "A53-GR.B";
             if (IsDefaultValue(_Data.ClassLast)) _Data.ClassLast = "11";
             if (IsDefaultValue(_Data.LastPartName)) _Data.LastPartName = "POST";
+            if (IsDefaultValue(_Data.LastProfileLink)) _Data.LastProfileLink = 1; // Match First
         }
     }
 }

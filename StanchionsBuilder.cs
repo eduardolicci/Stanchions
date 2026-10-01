@@ -156,27 +156,61 @@ namespace Stanchions
             post.StartPoint = basePt;
             post.EndPoint = new Point(basePt.X, basePt.Y, basePt.Z + height);
 
+            string prof, mat, cls, name;
+
             if (isFirst)
             {
-                post.Profile.ProfileString = _data.FirstProfile;
-                post.Material.MaterialString = _data.FirstMaterial;
-                post.Class = _data.ClassFirst;
-                post.Name = _data.FirstPartName;
+                prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
             }
             else if (isLast)
             {
-                post.Profile.ProfileString = _data.LastProfile;
-                post.Material.MaterialString = _data.LastMaterial;
-                post.Class = _data.ClassLast;
-                post.Name = _data.LastPartName;
+                if (_data.LastProfileLink == 1) // Match First
+                {
+                    prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
+                }
+                else if (_data.LastProfileLink == 2) // Match Middle
+                {
+                    if (_data.MidProfileLink == 1) // Middle matches First
+                    {
+                        prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
+                    }
+                    else
+                    {
+                        prof = _data.MidProfile; mat = _data.MidMaterial; cls = _data.ClassMid; name = _data.MidPartName;
+                    }
+                }
+                else // Custom
+                {
+                    prof = _data.LastProfile; mat = _data.LastMaterial; cls = _data.ClassLast; name = _data.LastPartName;
+                }
             }
-            else
+            else // Middle
             {
-                post.Profile.ProfileString = _data.MidProfile;
-                post.Material.MaterialString = _data.MidMaterial;
-                post.Class = _data.ClassMid;
-                post.Name = _data.MidPartName;
+                if (_data.MidProfileLink == 1) // Match First
+                {
+                    prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
+                }
+                else if (_data.MidProfileLink == 2) // Match Last
+                {
+                    if (_data.LastProfileLink == 1) // Last matches First
+                    {
+                        prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
+                    }
+                    else
+                    {
+                        prof = _data.LastProfile; mat = _data.LastMaterial; cls = _data.ClassLast; name = _data.LastPartName;
+                    }
+                }
+                else // Custom
+                {
+                    prof = _data.MidProfile; mat = _data.MidMaterial; cls = _data.ClassMid; name = _data.MidPartName;
+                }
             }
+
+            post.Profile.ProfileString = prof;
+            post.Material.MaterialString = mat;
+            post.Class = cls;
+            post.Name = name;
 
             post.AssemblyNumber.Prefix = "";
             post.AssemblyNumber.StartNumber = 1;

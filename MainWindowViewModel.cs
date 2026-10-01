@@ -31,11 +31,13 @@ namespace Stanchions
         private string midMaterial = "A53-GR.B";
         private string classMid = "11";
         private string midPartName = "POST";
+        private int midProfileLink = 1;
 
         private string lastProfile = "PIPE1-1/4SCH40";
         private string lastMaterial = "A53-GR.B";
         private string classLast = "11";
         private string lastPartName = "POST";
+        private int lastProfileLink = 1;
 
 
         [StructuresDialog("startOffset", typeof(TD.Distance))]
@@ -109,6 +111,9 @@ namespace Stanchions
         [StructuresDialog("partname1", typeof(TD.String))]
         public string MidPartName { get { return midPartName; } set { midPartName = value; OnPropertyChanged("MidPartName"); } }
 
+        [StructuresDialog("mprofile_link", typeof(TD.Integer))]
+        public int MidProfileLink { get { return midProfileLink; } set { midProfileLink = value; OnPropertyChanged("MidProfileLink"); } }
+
 
         [StructuresDialog("Lsprof", typeof(TD.String))]
         public string LastProfile { get { return lastProfile; } set { lastProfile = value; OnPropertyChanged("LastProfile"); } }
@@ -121,6 +126,9 @@ namespace Stanchions
 
         [StructuresDialog("partname3", typeof(TD.String))]
         public string LastPartName { get { return lastPartName; } set { lastPartName = value; OnPropertyChanged("LastPartName"); } }
+
+        [StructuresDialog("lprofile_link", typeof(TD.Integer))]
+        public int LastProfileLink { get { return lastProfileLink; } set { lastProfileLink = value; OnPropertyChanged("LastProfileLink"); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string name)
