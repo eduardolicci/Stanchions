@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:tsd="clr-namespace:Tekla.Structures.Dialog;assembly=Tekla.Structures.Dialog"
     Title="Stanchions"
-    Width="650"
+    Width="750"
     Height="500"
     HorizontalAlignment="Stretch"
     mc:Ignorable="d">
@@ -35,10 +35,10 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="30"/>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="30"/>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="150"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>
@@ -81,6 +81,28 @@
                     <Label Grid.Row="1" Grid.Column="3" Content="7. Nosing Offset" VerticalAlignment="Center"/>
                     <UIControls:WpfFilterCheckBox Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" AttributeName="nosing_offset"/>
                     <TextBox Grid.Row="1" Grid.Column="5" VerticalAlignment="Center" Text="{Binding NosingOffset, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="2" Grid.Column="3" Content="8. Start Level Mode" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="2" Grid.Column="4" VerticalAlignment="Center" AttributeName="level_start_mode"/>
+                    <ComboBox Grid.Row="2" Grid.Column="5" VerticalAlignment="Center" SelectedIndex="{Binding LevelStartMode, Mode=TwoWay}">
+                        <ComboBoxItem Content="Project Sloped Line"/>
+                        <ComboBoxItem Content="Independent Landing"/>
+                    </ComboBox>
+
+                    <Label Grid.Row="3" Grid.Column="3" Content="9. Start Slab Offset" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="3" Grid.Column="4" VerticalAlignment="Center" AttributeName="level_start_height"/>
+                    <TextBox Grid.Row="3" Grid.Column="5" VerticalAlignment="Center" Text="{Binding LevelStartHeight, Mode=TwoWay}" IsEnabled="{Binding LevelStartMode}"/>
+
+                    <Label Grid.Row="4" Grid.Column="3" Content="10. End Level Mode" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="4" Grid.Column="4" VerticalAlignment="Center" AttributeName="level_end_mode"/>
+                    <ComboBox Grid.Row="4" Grid.Column="5" VerticalAlignment="Center" SelectedIndex="{Binding LevelEndMode, Mode=TwoWay}">
+                        <ComboBoxItem Content="Project Sloped Line"/>
+                        <ComboBoxItem Content="Independent Landing"/>
+                    </ComboBox>
+
+                    <Label Grid.Row="5" Grid.Column="3" Content="11. End Slab Offset" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="5" Grid.Column="4" VerticalAlignment="Center" AttributeName="level_end_height"/>
+                    <TextBox Grid.Row="5" Grid.Column="5" VerticalAlignment="Center" Text="{Binding LevelEndHeight, Mode=TwoWay}" IsEnabled="{Binding LevelEndMode}"/>
                     
                 </Grid>
             </TabItem>
@@ -92,7 +114,7 @@
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="150"/>
                         <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="150"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="30"/>

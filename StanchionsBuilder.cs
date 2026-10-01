@@ -30,7 +30,6 @@ namespace Stanchions
             double spanMm = _data.Span;
             double baseHeightMm = _data.Height;
 
-            // Simple lateral offset (assumes straight line in plan view for the whole path)
             if (Math.Abs(lateralOffsetMm) > 1e-6)
             {
                 Vector overallDir = new Vector(_pathPoints[_pathPoints.Count - 1].X - _pathPoints[0].X, 
@@ -47,7 +46,6 @@ namespace Stanchions
                 }
             }
 
-            // Calculate segments and total length
             List<double> segmentLengths = new List<double>();
             double totalLength = 0;
             for (int i = 0; i < _pathPoints.Count - 1; i++)
@@ -64,7 +62,7 @@ namespace Stanchions
 
             if (usableLength > 1e-3)
             {
-                if (_data.SpaceScheme == 1) // Max span
+                if (_data.SpaceScheme == 1)
                 {
                     stations.Add(startOffsetMm);
                     int spaces = (int)Math.Ceiling(usableLength / spanMm);
@@ -76,7 +74,7 @@ namespace Stanchions
                     }
                     stations.Add(startOffsetMm + usableLength);
                 }
-                else // Exact span
+                else
                 {
                     if (spanMm > 1e-3)
                     {
@@ -101,7 +99,6 @@ namespace Stanchions
             {
                 double dist = stations[i];
                 
-                // Find which segment this distance falls in
                 double accumulated = 0;
                 int segIndex = 0;
                 double distInSeg = 0;
@@ -118,7 +115,6 @@ namespace Stanchions
                     }
                     accumulated += segmentLengths[s];
                     
-                    // Fallback if precision issues put it past the end
                     if (s == segmentLengths.Count - 1)
                     {
                         segIndex = s;
@@ -135,20 +131,66 @@ namespace Stanchions
                     segDir = segDir.GetNormal();
                     Point basePt = segStart + segDir * distInSeg;
                     
-                    // Height calculation based on slope!
+                    double h = Math.Sqrt(segDir.X * segDir.X + segDir.Y * segDir.Y);
                     double currentHeight = baseHeightMm;
-                    
-                    if (Math.Abs(_data.NosingOffset) > 1e-6)
+
+                    bool isLevel = h > 0.99;
+                    bool isFirstSegment = segIndex == 0;
+                    bool isLastSegment = segIndex == _pathPoints.Count - 2;
+
+                    if (isLevel && isFirstSegment && _pathPoints.Count > 2)
                     {
-                        double h = Math.Sqrt(segDir.X * segDir.X + segDir.Y * segDir.Y);
-                        if (h > 1e-6)
+                        if (_data.LevelStartMode == 1) // Independent
+                        {
+                            currentHeight = baseHeightMm + _data.LevelStartHeight;
+                        }
+                        else // Project
+                        {
+                            Vector stairDir = new Vector(_pathPoints[2].X - _pathPoints[1].X, _pathPoints[2].Y - _pathPoints[1].Y, _pathPoints[2].Z - _pathPoints[1].Z);
+                            if (stairDir.GetLength() > 1e-6)
+                            {
+                                stairDir = stairDir.GetNormal();
+                                double stairH = Math.Sqrt(stairDir.X * stairDir.X + stairDir.Y * stairDir.Y);
+                                if (stairH > 1e-6)
+                                {
+                                    double verticalGap = _data.NosingOffset / stairH;
+                                    double stairSlope = stairDir.Z / stairH;
+                                    double xyDistFromStair = Math.Sqrt(Math.Pow(basePt.X - _pathPoints[1].X, 2) + Math.Pow(basePt.Y - _pathPoints[1].Y, 2));
+                                    double targetTopZ = _pathPoints[1].Z + verticalGap + baseHeightMm - (xyDistFromStair * stairSlope);
+                                    currentHeight = targetTopZ - basePt.Z;
+                                }
+                            }
+                        }
+                    }
+                    else if (isLevel && isLastSegment && _pathPoints.Count > 2)
+                    {
+                        if (_data.LevelEndMode == 1) // Independent
+                        {
+                            currentHeight = baseHeightMm + _data.LevelEndHeight;
+                        }
+                        else // Project
+                        {
+                            Vector stairDir = new Vector(_pathPoints[segIndex].X - _pathPoints[segIndex-1].X, _pathPoints[segIndex].Y - _pathPoints[segIndex-1].Y, _pathPoints[segIndex].Z - _pathPoints[segIndex-1].Z);
+                            if (stairDir.GetLength() > 1e-6)
+                            {
+                                stairDir = stairDir.GetNormal();
+                                double stairH = Math.Sqrt(stairDir.X * stairDir.X + stairDir.Y * stairDir.Y);
+                                if (stairH > 1e-6)
+                                {
+                                    double verticalGap = _data.NosingOffset / stairH;
+                                    double stairSlope = stairDir.Z / stairH;
+                                    double xyDistFromStair = Math.Sqrt(Math.Pow(basePt.X - _pathPoints[segIndex].X, 2) + Math.Pow(basePt.Y - _pathPoints[segIndex].Y, 2));
+                                    double targetTopZ = _pathPoints[segIndex].Z + verticalGap + baseHeightMm + (xyDistFromStair * stairSlope);
+                                    currentHeight = targetTopZ - basePt.Z;
+                                }
+                            }
+                        }
+                    }
+                    else // Normal segment
+                    {
+                        if (h > 1e-6 && Math.Abs(_data.NosingOffset) > 1e-6)
                         {
                             currentHeight = baseHeightMm + (_data.NosingOffset / h);
-                        }
-                        else 
-                        {
-                            // It's perfectly vertical! Can't calculate NosingOffset realistically, just use base height.
-                            currentHeight = baseHeightMm;
                         }
                     }
 
@@ -176,13 +218,13 @@ namespace Stanchions
             }
             else if (isLast)
             {
-                if (_data.LastProfileLink == 1) // Match First
+                if (_data.LastProfileLink == 1)
                 {
                     prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
                 }
-                else if (_data.LastProfileLink == 2) // Match Middle
+                else if (_data.LastProfileLink == 2)
                 {
-                    if (_data.MidProfileLink == 1) // Middle matches First
+                    if (_data.MidProfileLink == 1)
                     {
                         prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
                     }
@@ -191,20 +233,20 @@ namespace Stanchions
                         prof = _data.MidProfile; mat = _data.MidMaterial; cls = _data.ClassMid; name = _data.MidPartName;
                     }
                 }
-                else // Custom
+                else
                 {
                     prof = _data.LastProfile; mat = _data.LastMaterial; cls = _data.ClassLast; name = _data.LastPartName;
                 }
             }
-            else // Middle
+            else
             {
-                if (_data.MidProfileLink == 1) // Match First
+                if (_data.MidProfileLink == 1)
                 {
                     prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
                 }
-                else if (_data.MidProfileLink == 2) // Match Last
+                else if (_data.MidProfileLink == 2)
                 {
-                    if (_data.LastProfileLink == 1) // Last matches First
+                    if (_data.LastProfileLink == 1)
                     {
                         prof = _data.FirstProfile; mat = _data.FirstMaterial; cls = _data.ClassFirst; name = _data.FirstPartName;
                     }
@@ -213,7 +255,7 @@ namespace Stanchions
                         prof = _data.LastProfile; mat = _data.LastMaterial; cls = _data.ClassLast; name = _data.LastPartName;
                     }
                 }
-                else // Custom
+                else
                 {
                     prof = _data.MidProfile; mat = _data.MidMaterial; cls = _data.ClassMid; name = _data.MidPartName;
                 }
