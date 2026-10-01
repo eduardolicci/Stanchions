@@ -77,6 +77,10 @@
                     <Label Grid.Row="0" Grid.Column="3" Content="6. Post Height" VerticalAlignment="Center"/>
                     <UIControls:WpfFilterCheckBox Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" AttributeName="sheight"/>
                     <TextBox Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" Text="{Binding Height, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="1" Grid.Column="3" Content="7. Nosing Offset" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="1" Grid.Column="4" VerticalAlignment="Center" AttributeName="nosing_offset"/>
+                    <TextBox Grid.Row="1" Grid.Column="5" VerticalAlignment="Center" Text="{Binding NosingOffset, Mode=TwoWay}"/>
                     
                 </Grid>
             </TabItem>

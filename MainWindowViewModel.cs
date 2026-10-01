@@ -15,7 +15,6 @@ namespace Stanchions
         
         private TD.Distance height = new TD.Distance(1066.8);
         private TD.Distance nosingOffset = new TD.Distance(0);
-        private TD.Distance heightAboveNosing = new TD.Distance(1100);
         private int heightMode = 0;
         private int levelStartMode = 0;
         private TD.Distance levelStartHeight = new TD.Distance(1100);
@@ -66,9 +65,6 @@ namespace Stanchions
 
         [StructuresDialog("nosing_offset", typeof(TD.Distance))]
         public TD.Distance NosingOffset { get { return nosingOffset; } set { nosingOffset = value; OnPropertyChanged("NosingOffset"); } }
-
-        [StructuresDialog("height_above_nosing", typeof(TD.Distance))]
-        public TD.Distance HeightAboveNosing { get { return heightAboveNosing; } set { heightAboveNosing = value; OnPropertyChanged("HeightAboveNosing"); } }
 
         [StructuresDialog("height_mode", typeof(TD.Integer))]
         public int HeightMode { get { return heightMode; } set { heightMode = value; OnPropertyChanged("HeightMode"); } }

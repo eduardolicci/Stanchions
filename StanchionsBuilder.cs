@@ -10,42 +10,54 @@ namespace Stanchions
     {
         private Model _model;
         private PluginData _data;
-        private Point _start;
-        private Point _end;
-        private List<Part> _parts;
+        private List<Point> _pathPoints;
 
-        public StanchionsBuilder(Model model, PluginData data, Point start, Point end, List<Part> parts)
+        public StanchionsBuilder(Model model, PluginData data, List<Point> pathPoints)
         {
             _model = model;
             _data = data;
-            _start = start;
-            _end = end;
-            _parts = parts;
+            _pathPoints = pathPoints;
         }
 
         public int Build()
         {
+            if (_pathPoints.Count < 2) return 0;
+            
             int postCount = 0;
             double startOffsetMm = _data.StartOffset;
             double endOffsetMm = _data.EndOffset;
-            double offsetMm = _data.Offset;
+            double lateralOffsetMm = _data.Offset;
             double spanMm = _data.Span;
-            double heightMm = _data.Height;
+            double baseHeightMm = _data.Height;
 
-            Vector dir = _start.GetDirectionTo(_end);
-            double totalLength = dir.GetLength();
-            if (totalLength < 1e-6) return 0;
-            dir = dir.GetNormal();
-
-            if (Math.Abs(offsetMm) > 1e-6)
+            // Simple lateral offset (assumes straight line in plan view for the whole path)
+            if (Math.Abs(lateralOffsetMm) > 1e-6)
             {
-                Vector lateral = dir.GetPerpendicular();
-                if (lateral.GetLength() < 1e-6) lateral = new Vector(0, 1, 0);
-                lateral = lateral.GetNormal();
-                
-                _start = _start.MoveTowards(lateral, offsetMm);
-                _end = _end.MoveTowards(lateral, offsetMm);
+                Vector overallDir = new Vector(_pathPoints[_pathPoints.Count - 1].X - _pathPoints[0].X, 
+                                               _pathPoints[_pathPoints.Count - 1].Y - _pathPoints[0].Y, 0);
+                if (overallDir.GetLength() > 1e-6)
+                {
+                    overallDir = overallDir.GetNormal();
+                    Vector lateral = new Vector(-overallDir.Y, overallDir.X, 0).GetNormal();
+                    
+                    for (int i = 0; i < _pathPoints.Count; i++)
+                    {
+                        _pathPoints[i] = _pathPoints[i] + lateral * lateralOffsetMm;
+                    }
+                }
             }
+
+            // Calculate segments and total length
+            List<double> segmentLengths = new List<double>();
+            double totalLength = 0;
+            for (int i = 0; i < _pathPoints.Count - 1; i++)
+            {
+                double len = Tekla.Structures.Geometry3d.Distance.PointToPoint(_pathPoints[i], _pathPoints[i + 1]);
+                segmentLengths.Add(len);
+                totalLength += len;
+            }
+
+            if (totalLength < 1e-6) return 0;
 
             double usableLength = totalLength - startOffsetMm - endOffsetMm;
             List<double> stations = new List<double>();
@@ -88,66 +100,66 @@ namespace Stanchions
             for (int i = 0; i < stations.Count; i++)
             {
                 double dist = stations[i];
-                Point pt = _start.MoveTowards(dir, dist);
                 
-                if (TrySeatOnBase(pt, out Point seatPt))
+                // Find which segment this distance falls in
+                double accumulated = 0;
+                int segIndex = 0;
+                double distInSeg = 0;
+                
+                for (int s = 0; s < segmentLengths.Count; s++)
                 {
+                    if (dist <= accumulated + segmentLengths[s] + 1e-3)
+                    {
+                        segIndex = s;
+                        distInSeg = dist - accumulated;
+                        if (distInSeg < 0) distInSeg = 0;
+                        if (distInSeg > segmentLengths[s]) distInSeg = segmentLengths[s];
+                        break;
+                    }
+                    accumulated += segmentLengths[s];
+                    
+                    // Fallback if precision issues put it past the end
+                    if (s == segmentLengths.Count - 1)
+                    {
+                        segIndex = s;
+                        distInSeg = segmentLengths[s];
+                    }
+                }
+
+                Point segStart = _pathPoints[segIndex];
+                Point segEnd = _pathPoints[segIndex + 1];
+                Vector segDir = new Vector(segEnd.X - segStart.X, segEnd.Y - segStart.Y, segEnd.Z - segStart.Z);
+                
+                if (segDir.GetLength() > 1e-6)
+                {
+                    segDir = segDir.GetNormal();
+                    Point basePt = segStart + segDir * distInSeg;
+                    
+                    // Height calculation based on slope!
+                    double currentHeight = baseHeightMm;
+                    
+                    if (Math.Abs(_data.NosingOffset) > 1e-6)
+                    {
+                        double h = Math.Sqrt(segDir.X * segDir.X + segDir.Y * segDir.Y);
+                        if (h > 1e-6)
+                        {
+                            currentHeight = baseHeightMm + (_data.NosingOffset / h);
+                        }
+                        else 
+                        {
+                            // It's perfectly vertical! Can't calculate NosingOffset realistically, just use base height.
+                            currentHeight = baseHeightMm;
+                        }
+                    }
+
                     bool isFirst = (i == 0);
                     bool isLast = (i == stations.Count - 1);
-                    InsertPlumbPost(seatPt, heightMm, isFirst, isLast);
+                    InsertPlumbPost(basePt, currentHeight, isFirst, isLast);
                     postCount++;
                 }
             }
             
             return postCount;
-        }
-
-        private bool TrySeatOnBase(Point xyPt, out Point seatPt)
-        {
-            seatPt = new Point(xyPt);
-            if (_parts.Count == 0) return false;
-
-            double maxZ = double.MinValue;
-            bool found = false;
-
-            Point[] offsets = { 
-                new Point(0, 0, 0),
-                new Point(1, 0, 0),
-                new Point(-1, 0, 0),
-                new Point(0, 1, 0),
-                new Point(0, -1, 0)
-            };
-
-            foreach (var offset in offsets)
-            {
-                Point top = new Point(xyPt.X + offset.X, xyPt.Y + offset.Y, 1.0e6);
-                Point bottom = new Point(xyPt.X + offset.X, xyPt.Y + offset.Y, -1.0e6);
-
-                foreach (var part in _parts)
-                {
-                    var solid = part.GetSolid();
-                    if (solid == null) continue;
-                    var intersections = solid.Intersect(bottom, top);
-                    if (intersections != null)
-                    {
-                        foreach (Point p in intersections)
-                        {
-                            if (p.Z > maxZ)
-                            {
-                                maxZ = p.Z;
-                                found = true;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (found)
-            {
-                seatPt.Z = maxZ;
-                return true;
-            }
-            return false;
         }
 
         private void InsertPlumbPost(Point basePt, double height, bool isFirst, bool isLast)
@@ -225,4 +237,3 @@ namespace Stanchions
         }
     }
 }
-
