@@ -1,0 +1,196 @@
+<tsd:PluginWindowBase
+    x:Class="Stanchions.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:UIControls="clr-namespace:Tekla.Structures.Dialog.UIControls;assembly=Tekla.Structures.Dialog"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Stanchions"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tsd="clr-namespace:Tekla.Structures.Dialog;assembly=Tekla.Structures.Dialog"
+    Title="Stanchions"
+    Width="650"
+    Height="500"
+    HorizontalAlignment="Stretch"
+    mc:Ignorable="d">
+    <d:UserControl.DataContext>
+        <local:MainWindowViewModel />
+    </d:UserControl.DataContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="48" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" MinHeight="48" />
+        </Grid.RowDefinitions>
+        
+        <UIControls:WpfSaveLoad
+            Grid.Row="0"
+            Margin="5,5,5,5"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Top" />
+            
+        <TabControl Grid.Row="1" Margin="5">
+            <TabItem Header="Parameters">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="30"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Start Offset" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" AttributeName="startOffset"/>
+                    <TextBox Grid.Row="0" Grid.Column="2" VerticalAlignment="Center" Text="{Binding StartOffset, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="End Offset" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" AttributeName="endOffset"/>
+                    <TextBox Grid.Row="1" Grid.Column="2" VerticalAlignment="Center" Text="{Binding EndOffset, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Space Scheme" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" AttributeName="space_scheme"/>
+                    <ComboBox Grid.Row="2" Grid.Column="2" VerticalAlignment="Center" SelectedIndex="{Binding SpaceScheme, Mode=TwoWay}">
+                        <ComboBoxItem Content="Exact Span"/>
+                        <ComboBoxItem Content="Max Span"/>
+                    </ComboBox>
+
+                    <Label Grid.Row="3" Grid.Column="0" Content="Span" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="3" Grid.Column="1" VerticalAlignment="Center" AttributeName="span"/>
+                    <TextBox Grid.Row="3" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Span, Mode=TwoWay}"/>
+
+                    <Label Grid.Row="4" Grid.Column="0" Content="Lateral Offset" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="4" Grid.Column="1" VerticalAlignment="Center" AttributeName="soffset"/>
+                    <TextBox Grid.Row="4" Grid.Column="2" VerticalAlignment="Center" Text="{Binding Offset, Mode=TwoWay}"/>
+
+                    <!-- Right Column -->
+                    <Label Grid.Row="0" Grid.Column="3" Content="Post Height" VerticalAlignment="Center"/>
+                    <UIControls:WpfFilterCheckBox Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" AttributeName="sheight"/>
+                    <TextBox Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" Text="{Binding Height, Mode=TwoWay}"/>
+                    
+                </Grid>
+            </TabItem>
+            
+            <TabItem Header="Parts">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="120"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="15"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="30"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Headers -->
+                    <Label Grid.Row="0" Grid.Column="1" Content="First" FontWeight="Bold"/>
+                    <Label Grid.Row="0" Grid.Column="2" Content="Middle" FontWeight="Bold"/>
+                    <Label Grid.Row="0" Grid.Column="3" Content="Last" FontWeight="Bold" Grid.ColumnSpan="2"/>
+                    
+                    <!-- Profile -->
+                    <Label Grid.Row="1" Grid.Column="0" Content="Profile"/>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="Fsprof"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding FirstProfile, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="Msprof"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding MidProfile, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="Lsprof"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding LastProfile, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <!-- Material -->
+                    <Label Grid.Row="2" Grid.Column="0" Content="Material"/>
+                    
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="mat2"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding FirstMaterial, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="2" Grid.Column="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="mat1"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding MidMaterial, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="2" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="mat3"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding LastMaterial, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <!-- Class -->
+                    <Label Grid.Row="3" Grid.Column="0" Content="Class"/>
+                    
+                    <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="ClassFirst"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding ClassFirst, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="3" Grid.Column="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="ClassMid"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding ClassMid, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="3" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="ClassLast"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding ClassLast, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <!-- Part Name -->
+                    <Label Grid.Row="5" Grid.Column="0" Content="Name"/>
+                    
+                    <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="partname2"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding FirstPartName, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="5" Grid.Column="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="partname1"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding MidPartName, Mode=TwoWay}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="5" Grid.Column="3" Grid.ColumnSpan="2" Orientation="Horizontal">
+                        <UIControls:WpfFilterCheckBox VerticalAlignment="Center" AttributeName="partname3"/>
+                        <TextBox Width="120" VerticalAlignment="Center" Text="{Binding LastPartName, Mode=TwoWay}"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        
+        <UIControls:WpfOkApplyModifyGetOnOffCancel
+            Grid.Row="2"
+            Margin="5,0,5,5"
+            ApplyClicked="WPFOkApplyModifyGetOnOffCancel_ApplyClicked"
+            CancelClicked="WPFOkApplyModifyGetOnOffCancel_CancelClicked"
+            GetClicked="WPFOkApplyModifyGetOnOffCancel_GetClicked"
+            ModifyClicked="WPFOkApplyModifyGetOnOffCancel_ModifyClicked"
+            OkClicked="WPFOkApplyModifyGetOnOffCancel_OkClicked"
+            OnOffClicked="WPFOkApplyModifyGetOnOffCancel_OnOffClicked" />
+    </Grid>
+</tsd:PluginWindowBase>
+
